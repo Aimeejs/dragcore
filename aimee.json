@@ -1,0 +1,19 @@
+{
+  "name": "dragcore",
+  "version": "0.1.0",
+  "description": "网页拖拽 drag",
+  "author": "gavinning",
+  "keywords": [
+    "drag",
+    "网页拖拽",
+    "drag core"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aimeejs/dragcore.git",
+    "bugs": "https:/github.com/aimeejs/dragcore/issues"
+  },
+  "dependencies": {
+    "config": "^2.1.1"
+  }
+}
