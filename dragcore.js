@@ -65,13 +65,25 @@ class Dragcore {
         this.$.on('drop', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            this.fire('drop', [e, filterType(e.dataTransfer.files, this.config.get('type'))]);
+            this.fire('drop', [filterType(this.getFiles(e), this.config.get('type'))]);
         })
         // 兼容传统上传方式
         // => input[type="file"]
         !config.File || this.$.on('change', config.File, (e) => {
-            this.fire('drop', [e, filterType(e.target.files, this.config.get('type'))]);
+            this.fire('drop', [filterType(e.target.files, this.config.get('type'))]);
         })
+    }
+
+    /**
+     * 获取文件列表
+     * @param   {Object}  e drop.event对象
+     * @return  {Array}     files
+     */
+    getFiles(e) {
+        return e.dataTransfer ?
+            e.dataTransfer.files :
+            e.originalEvent && e.originalEvent.dataTransfer ?
+                e.originalEvent.dataTransfer.files : [];
     }
 
     /**
