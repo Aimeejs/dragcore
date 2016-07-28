@@ -34,6 +34,40 @@ drag.on('drop', (e, files) => {
     files.forEach((file) => {
         $(document.body).append(`<img width="200" src="${drag.getURL(file)}">`)
     })
+
+    // 上传文件 POST请求 FormData数据
+    drag.send({
+        url: '/url',
+        data: files,
+        error: (msg) => {
+            console.log(msg)
+        },
+        success: (msg) => {
+            console.log(msg)
+        },
+        // 上传进度
+        progress: (e, prog) => {
+            console.log(prog)
+            if(prog === '100%'){
+                console.log('upload done')
+            }
+        },
+        // XHR.upload
+        upload: {
+            load: () => {},
+            error: () => {},
+            abort: () => {},
+            loadend: () => {},
+            loadstart: () => {},
+            // 同上 progress 上传进度 二者选其一
+            progress: (e, prog) => {
+                console.log(prog)
+                if(prog === '100%'){
+                    console.log('upload done')
+                }
+            }
+        }
+    })
 })
 ```
 

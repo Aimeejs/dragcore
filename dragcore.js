@@ -107,34 +107,53 @@ class Dragcore {
      * @return  {Object}        FormData实例对象
      */
     getFormData(files) {
+        var name = [];
         var form = new FormData();
         files.forEach((file) => {
-            form.append(file.name.replace('.', '_'), file)
-        })
+            name.push(file.name.replace('.', '_'));
+            form.append(name[name.length-1], file);
+        });
+        form.append('filename', name.join(','));
         return form;
     }
 
     /**
      * 发送到目标服务器，默认为POST请求
-     * @param   {String}   url   远程URL
-     * @param   {Array}    files 文件队列
-     * @param   {Function} fn    成功回调
-     * @param   {Function} func  失败回调
+     * @param  {Object}  options  $.ajax(options)
      */
-    send(url, files, fn, func) {
-        if(files.length){
-            $.ajax({
-                url: url,
-                type: 'POST',
-                contentType: false,
-                processData: false,
-                data: this.getFormData(files),
-                success: fn,
-                error: func
-            })
+    send(options) {
+        if(!$.isPlainObject(options)){
+            return console.error('options must be a plain object')
         }
-        else{
-            console.warn('files.length is 0')
+        if(!(options.data instanceof FormData)){
+            options.data = this.getFormData(options.data)
+        }
+        options.xhr = options.xhr || getXhr;
+        options.type = options.type || 'POST';
+        options.contentType = options.contentType || false;
+        options.processData = options.processData || false;
+
+        $.ajax(options);
+
+        function progress(e) {
+            let done = e.loaded || e.position
+            let total = e.total || e.totalSize;
+            let prog = Math.round(done/total*100) + '%';
+            !$.isFunction(options.progress) || options.progress(e, prog);
+        }
+
+        function getXhr() {
+            let xhr = jQuery.ajaxSettings.xhr();
+            xhr.upload.addEventListener('progress', progress, false);
+            if(options.upload){
+                options.progress = options.progress || options.upload.progress;
+                !$.isFunction(options.load) || xhr.upload.addEventListener('load', options.load, false);
+                !$.isFunction(options.abort) || xhr.upload.addEventListener('abort', options.abort, false);
+                !$.isFunction(options.error) || xhr.upload.addEventListener('error', options.error, false);
+                !$.isFunction(options.loadstart) || xhr.upload.addEventListener('loadstart', options.loadstart, false);
+                !$.isFunction(options.loadEnd) || xhr.upload.addEventListener('loadend', options.loadEnd, false);
+            }
+            return xhr;
         }
     }
 
